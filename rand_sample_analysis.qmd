@@ -1,0 +1,78 @@
+---
+title: "Random Ordering Sudoku Solver Analysis"
+author: "Steven Kim"
+date: "today"
+format: pdf
+execute:
+  warning: false
+  message: false
+---
+```{r}
+#| include: false
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
+```
+
+Check for packages:
+```{r}
+#| echo: false
+library(tidyverse)
+library(dplyr)
+library(here)
+```
+
+Read Data:
+```{r}
+rand_1 <- read_csv(here("data", "rand_sample_1.csv"))
+
+processed_rand_1 <- rand_1 |>
+  filter(is_solved == TRUE)
+
+glimpse(processed_rand_1)
+```
+
+```{r}
+ggplot(processed_rand_1, aes(x = nodes_explored)) +
+  geom_histogram(bins = 30, fill = "skyblue", color = "white") +
+  coord_cartesian(xlim = c(0, 2000000)) +
+  labs(title = "Distribution of Nodes Explored") +
+  theme_minimal()
+```
+
+```{r}
+rand_10_100 <- read_csv(here("data", "rand_sample_10_1000.csv"))
+
+processed_rand_10_100 <- rand_10_100 |>
+  filter(is_solved == TRUE)
+
+glimpse(processed_rand_10_100)
+```
+
+```{r}
+summary_stats <- processed_rand_10_100 |>
+  group_by(puzzle_id) |>
+  summarise(
+    mean_nodes = mean(nodes_explored),
+    median_nodes = median(nodes_explored),
+    sd_nodes = sd(nodes_explored),
+    min_nodes = min(nodes_explored),
+    max_nodes = max(nodes_explored),
+  ) |>
+  arrange(mean_nodes)
+
+summary_stats
+```
+
+```{r}
+processed_rand_10_100 |>
+  mutate(puzzle_id = fct_reorder(factor(puzzle_id), nodes_explored, .fun = mean)) |>
+  ggplot(aes(x = puzzle_id, y = nodes_explored)) +
+  geom_violin(alpha = 0.6) +
+  geom_boxplot(aes(color = difficulty)) +
+#  coord_cartesian(ylim = c(0, 20000000)) +
+  labs(
+    title = "Puzzles Ordered by Average Nodes Explored",
+    x = "Puzzle ID (ordered by mean)",
+    y = "Nodes Explored"
+  ) +
+  theme_minimal()
+```
