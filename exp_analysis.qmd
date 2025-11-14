@@ -17,8 +17,6 @@ Check for packages:
 #| echo: false
 library(tidyverse)
 library(dplyr)
-
-install.packages("here")
 library(here)
 ```
 
@@ -53,7 +51,16 @@ ggplot(sudoku_data_processed, aes(x = solve_time_ms, y = difficulty)) +
 ```{r}
 ggplot(sudoku_data_processed, aes(x = nodes_explored, y = difficulty)) +
   geom_point(alpha = 0.5) +
-# coord_cartesian(xlim = c(0, 2500000)) +
+  coord_cartesian(xlim = c(0, 2500000)) +
   labs(title = "Difficulty by Nodes Explored") +
+  theme_minimal()
+```
+
+```{r}
+ggplot(sudoku_data_processed, aes(x = factor(clues), y = nodes_explored)) +
+  geom_boxplot(alpha = 0.7) +
+  geom_jitter(alpha = 0.2, width = 0.3) +
+  coord_cartesian(ylim = c(0, 500000)) +
+  labs(title = "Nodes Explored by Number of Clues") +
   theme_minimal()
 ```

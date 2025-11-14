@@ -32,10 +32,13 @@ glimpse(processed_rand_1)
 
 ```{r}
 ggplot(processed_rand_1, aes(x = nodes_explored)) +
-  geom_histogram(bins = 30, fill = "skyblue", color = "white") +
-  coord_cartesian(xlim = c(0, 2000000)) +
+  geom_histogram(bins = 5000, fill = "skyblue", color = "white") +
+  coord_cartesian(xlim = c(0, 100000)) +
   labs(title = "Distribution of Nodes Explored") +
   theme_minimal()
+
+mean(processed_rand_1$nodes_explored, na.rm = TRUE)
+median(processed_rand_1$nodes_explored, na.rm = TRUE)
 ```
 
 ```{r}
@@ -56,23 +59,29 @@ summary_stats <- processed_rand_10_100 |>
     sd_nodes = sd(nodes_explored),
     min_nodes = min(nodes_explored),
     max_nodes = max(nodes_explored),
+    difficulty = mean(difficulty),
   ) |>
   arrange(mean_nodes)
 
 summary_stats
+
+# min nodes tells us something about a human's ability to scan and solve a puzzle
+# higher values of min nodes are more correlated with difficulty than the lower values of min nodes
 ```
 
 ```{r}
 processed_rand_10_100 |>
   mutate(puzzle_id = fct_reorder(factor(puzzle_id), nodes_explored, .fun = mean)) |>
   ggplot(aes(x = puzzle_id, y = nodes_explored)) +
-  geom_violin(alpha = 0.6) +
+  geom_point(alpha = 0.6) +
   geom_boxplot(aes(color = difficulty)) +
-#  coord_cartesian(ylim = c(0, 20000000)) +
+  coord_cartesian(ylim = c(0, 2000)) +
   labs(
     title = "Puzzles Ordered by Average Nodes Explored",
     x = "Puzzle ID (ordered by mean)",
     y = "Nodes Explored"
   ) +
   theme_minimal()
+
+# density of points towards the minimum --> potential signal of correlation with difficulty
 ```
