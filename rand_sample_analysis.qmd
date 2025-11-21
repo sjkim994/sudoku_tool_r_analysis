@@ -1,5 +1,5 @@
 ---
-title: "Random Ordering Sudoku Solver Analysis"
+title: "Analysis of Random Orderings for Brute Force Alg for 10 Sudoku Puzzles"
 author: "Steven Kim"
 date: "today"
 format: pdf
@@ -21,26 +21,6 @@ library(here)
 ```
 
 Read Data:
-```{r}
-rand_1 <- read_csv(here("data", "rand_sample_1.csv"))
-
-processed_rand_1 <- rand_1 |>
-  filter(is_solved == TRUE)
-
-glimpse(processed_rand_1)
-```
-
-```{r}
-ggplot(processed_rand_1, aes(x = nodes_explored)) +
-  geom_histogram(bins = 5000, fill = "skyblue", color = "white") +
-  coord_cartesian(xlim = c(0, 100000)) +
-  labs(title = "Distribution of Nodes Explored") +
-  theme_minimal()
-
-mean(processed_rand_1$nodes_explored, na.rm = TRUE)
-median(processed_rand_1$nodes_explored, na.rm = TRUE)
-```
-
 ```{r}
 rand_10_100 <- read_csv(here("data", "rand_sample_10_1000.csv"))
 
@@ -70,8 +50,26 @@ summary_stats
 ```
 
 ```{r}
+processed_rand_10_100 <- processed_rand_10_100 |>
+  mutate(puzzle_id = fct_reorder(factor(puzzle_id), nodes_explored, .fun = mean))
+
 processed_rand_10_100 |>
-  mutate(puzzle_id = fct_reorder(factor(puzzle_id), nodes_explored, .fun = mean)) |>
+  ggplot(aes(x = puzzle_id, y = nodes_explored)) +
+  geom_point(alpha = 0.6) +
+  geom_boxplot(aes(color = difficulty)) +
+  coord_cartesian(ylim = c(0, 2000000)) +
+  labs(
+    title = "Puzzles Ordered by Average Nodes Explored",
+    x = "Puzzle ID (ordered by mean)",
+    y = "Nodes Explored"
+  ) +
+  theme_minimal()
+
+# density of points towards the minimum --> potential signal of correlation with difficulty
+```
+
+```{r}
+processed_rand_10_100 |>
   ggplot(aes(x = puzzle_id, y = nodes_explored)) +
   geom_point(alpha = 0.6) +
   geom_boxplot(aes(color = difficulty)) +
@@ -82,6 +80,48 @@ processed_rand_10_100 |>
     y = "Nodes Explored"
   ) +
   theme_minimal()
+```
 
-# density of points towards the minimum --> potential signal of correlation with difficulty
+```{r}
+summary_stats |> 
+  ggplot(aes(x = min_nodes, y = difficulty)) +
+  geom_point() +
+  labs(title = "Difficulty vs. Minimum Nodes") +
+  theme_minimal()
+```
+
+### Sample of 100 Puzzles With 1000 Runs
+
+Read Data:
+```{r}
+rand_100_1000 <- read_csv(here("data", "rand_sample_100_1000.csv"))
+
+data_100_1000 <- rand_100_1000 |>
+  filter(is_solved == TRUE)
+
+glimpse(data_100_1000)
+```
+
+```{r}
+summary_stats_2 <- data_100_1000 |>
+  group_by(puzzle_id) |>
+  summarise(
+    mean_nodes = mean(nodes_explored),
+    median_nodes = median(nodes_explored),
+    sd_nodes = sd(nodes_explored),
+    min_nodes = min(nodes_explored),
+    max_nodes = max(nodes_explored),
+    difficulty = mean(difficulty),
+  ) |>
+  arrange(mean_nodes)
+
+summary_stats_2
+```
+
+```{r}
+summary_stats_2 |> 
+  ggplot(aes(x = min_nodes, y = difficulty)) +
+  geom_point() +
+  labs(title = "Difficulty vs. Minimum Nodes") +
+  theme_minimal()
 ```

@@ -34,8 +34,8 @@ glimpse(sudoku_data_processed)
 Preliminary Graphs:
 ```{r}
 ggplot(sudoku_data_processed, aes(x = factor(clues), y = difficulty)) +
-  geom_boxplot(alpha = 0.7) +
-  geom_jitter(alpha = 0.2, width = 0.3) +
+  geom_jitter(alpha = 0.1, width = 0.3) +
+  geom_boxplot(alpha = 0.5, color = "darkgreen") +
   labs(title = "Difficulty by Number of Clues") +
   theme_minimal()
 ```
@@ -58,8 +58,8 @@ ggplot(sudoku_data_processed, aes(x = nodes_explored, y = difficulty)) +
 
 ```{r}
 ggplot(sudoku_data_processed, aes(x = factor(clues), y = nodes_explored)) +
-  geom_boxplot(alpha = 0.7) +
-  geom_jitter(alpha = 0.2, width = 0.3) +
+  geom_jitter(alpha = 0.1, width = 0.3) +
+  geom_boxplot(alpha = 0.5, color = "darkgreen") +
   coord_cartesian(ylim = c(0, 500000)) +
   labs(title = "Nodes Explored by Number of Clues") +
   theme_minimal()
